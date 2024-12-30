@@ -1,0 +1,20 @@
+bs4 
+requests
+Scrapy
+python-dotenv
+
+# for data extraction and validation
+playwright
+pydantic
+
+# for api creation
+fastapi
+
+huggingface_hub
+langchain
+langchain_community
+langchain-huggingface
+pandas
+pydantic[email]
+pypdf
+chromadb
