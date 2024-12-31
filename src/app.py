@@ -13,10 +13,7 @@ from langchain_community.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferMemory
 from typing import Literal
 from pydantic_core import ValidationError
-import ollama
-from langchain_ollama import OllamaEmbeddings
-from langchain_community.document_loaders import PyPDFLoader
-
+from groq_embeddings import generate_embeddings
 
 
 
@@ -25,13 +22,13 @@ load_dotenv()
 
 os.environ['HUGGINGFACEHUB_API_TOKEN'] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
 
-def generate_data_from_embeddings(resume_pdf):
-    loader = PyPDFLoader(resume_pdf)
     
 
 # function to generate email subject and body
-def generate_subject_and_body(job_title:str, prompt_type:Literal['subject', 'body']) -> str:
+def generate_subject_and_body(job_title:str, prompt_type:Literal['subject', 'body'], resume_pdf) -> str:
     chat_memory = ConversationBufferMemory(input_key="job_title" , memory_key="chat_memory")
+    
+    skills = generate_embeddings(resume_pdf, "summarise the skill section")
     
     example_subject = "Exciting Opportunity for a Frontend Engineer with React and JavaScript Expertise"
     example_body = """Dear Hiring Manager,
@@ -49,7 +46,7 @@ def generate_subject_and_body(job_title:str, prompt_type:Literal['subject', 'bod
 
                         Generate a similar subject for the job title "{job_title}"."""
     else:  # for 'body'
-        detailed_prompt = f"""You are an expert email body generator. Write a detailed and persuasive email body for a {job_title} job application. The body should highlight key skills such as , express enthusiasm about the role, and be unique and professional.
+        detailed_prompt = f"""You are an expert email body generator. Write a detailed and persuasive email body for a {job_title} job application. The body should highlight key {skills} such as , express enthusiasm about the role, and be unique and professional.
 
                         Example Body:
                         {example_body}
@@ -169,6 +166,8 @@ def send_email_from_csv(sender_email, sender_password,csv_file):
         except Exception as e:
             print(e)    
      
-# if __name__ == "__main__":
+if __name__ == "__main__":
+    body = generate_subject_and_body("software engineer", "body", "src\swapnil_resume.pdf")
+    print("body ->", body)
 #     send_email_from_csv("swapnilsonker04@gmail.com", "hnuu mngw keqt pnqm", "jobs_data.csv")
 #     send_email("swapnilsonker04@gmail.com", "swapnilsonkarcse2019@bbdu.ac.in", "hnuu mngw keqt pnqm", "body", "subject","sem 2 res.pdf" )
