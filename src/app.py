@@ -21,14 +21,14 @@ from groq_embeddings import generate_embeddings
 load_dotenv()
 
 os.environ['HUGGINGFACEHUB_API_TOKEN'] = os.getenv('HUGGINGFACEHUB_API_TOKEN')
-
+gmail_password = os.getenv('GMAIL_PASSWORD')
     
 
 # function to generate email subject and body
-def generate_subject_and_body(job_title:str, prompt_type:Literal['subject', 'body'], resume_pdf) -> str:
+def generate_subject_and_body(job_title:str, prompt_type:Literal['subject', 'body'], skills) -> str:
     chat_memory = ConversationBufferMemory(input_key="job_title" , memory_key="chat_memory")
     
-    skills = generate_embeddings(resume_pdf, "summarise the skill section")
+    # skills = generate_embeddings(resume_pdf, "summarise the skill section")
     
     example_subject = "Exciting Opportunity for a Frontend Engineer with React and JavaScript Expertise"
     example_body = """Dear Hiring Manager,
@@ -77,7 +77,7 @@ class Email_Validation(BaseModel):
 
 
 
-def send_email(your_email , to_email, password, body, subject, resume_pdf):
+def send_email(your_email , to_email, password, body, subject, resume_pdf=None):
     
     try:
         msg = MIMEMultipart()
@@ -85,12 +85,15 @@ def send_email(your_email , to_email, password, body, subject, resume_pdf):
         msg["To"] = to_email
         msg["Subject"] = subject
         
-        msg.attach(MIMEText(body, 'plain'))
+        if "<html>" in body and "</html>" in body:
+            msg.attach(MIMEText(body, 'html'))
+        else:    
+            msg.attach(MIMEText(body, 'plain'))
         
         if resume_pdf:
             try:
                 with open(resume_pdf, "rb") as attachment:
-                    part = MIMEBase("application", "pdf")
+                    part = MIMEBase("application", "octet-stream")
                     part.set_payload(attachment.read())
                 # Encode the file in base64
                 encoders.encode_base64(part)
@@ -116,9 +119,10 @@ def send_email(your_email , to_email, password, body, subject, resume_pdf):
         print(f"Error: {e}")
                     
 
-def send_email_from_csv(sender_email, sender_password,csv_file):
+def send_email_from_csv(sender_email, sender_password,csv_file, resume_pdf):
     try:
         data = pd.read_csv(csv_file)
+        skills = generate_embeddings(resume_pdf, "summarise the skill section")
     except FileNotFoundError:
         print(f"Error: The file '{csv_file}' was not found.")
         return
@@ -153,21 +157,74 @@ def send_email_from_csv(sender_email, sender_password,csv_file):
                 # print("sender_email" , type(Email.your_email))
                 # print("receiver email", type(Email.to_email))
                 
-                subject =  generate_subject_and_body(job_title, "subject")
+                subject =  generate_subject_and_body(job_title, "subject", skills)
                 # print("subject ->", type(subject))
                 
-                body = generate_subject_and_body(job_title, "body")
+                body = generate_subject_and_body(job_title, "body", skills)
                 # print("body ->", body)
                 
-                send_email(Email.your_email, Email.to_email, Email.password, body, subject, "sem 2 res.pdf")
+                send_email(Email.your_email, Email.to_email, Email.password, body, subject, resume_pdf)
             
         except ValidationError as e:
             print(f"Validation Error: {e}")    
         except Exception as e:
             print(e)    
+
+def send_email_in_HTML(sender_email, sender_password,data_source,htmlbody, temporary_pdf=None):
+    if data_source.endswith(".csv"):
+        try:
+            data = pd.read_csv(data_source)
+        except FileNotFoundError:
+            print(f"Error: The file '{data_source}' was not found.")
+            return
+        
+        for _, row in data.iterrows():
+            
+            if row['Email'] == "N/A" or pd.isna(row['Email']):
+                continue
+            if pd.isna(row['Company Name']):
+                continue
+            try:
+                Email = Email_Validation(
+                    your_email = sender_email,
+                    to_email = row['Email'],
+                    password = sender_password,
+                    company_name= row['Company Name'] if row['Email'] != "N/A" else "Unknown"
+                )
+                
+                job_title = row['Job Title'].strip()
+                
+                subject = f"For {job_title} job position"
+            
+                if not pd.isna(row['Email']) or row['Email'] != "N/A" or not pd.isna(row['Company Name']):
+                    
+                    send_email(Email.your_email, Email.to_email, Email.password, htmlbody, subject, temporary_pdf)
+            except ValidationError as e:
+                print(f"Validation Error: {e}")
+    else:
+        recipient_email = data_source
+        try:
+            Email = Email_Validation(
+                your_email=sender_email,
+                to_email=recipient_email,
+                password=sender_password,
+                company_name="Unknown"
+            )
+            
+            subject = "Email containing code"
+            send_email(Email.your_email, Email.to_email, Email.password, htmlbody, subject, temporary_pdf)
+        except ValidationError as e:
+            print(f"Validation Error: {e}")                
      
 if __name__ == "__main__":
-    body = generate_subject_and_body("software engineer", "body", "src\swapnil_resume.pdf")
-    print("body ->", body)
-#     send_email_from_csv("swapnilsonker04@gmail.com", "hnuu mngw keqt pnqm", "jobs_data.csv")
-#     send_email("swapnilsonker04@gmail.com", "swapnilsonkarcse2019@bbdu.ac.in", "hnuu mngw keqt pnqm", "body", "subject","sem 2 res.pdf" )
+    # subject = "HTML EMAIL"
+    html_body = """
+<html>
+    <body>
+        <h1 style="color: blue;">Hello Recruiter,</h1>
+        <p>This is an <b>HTML</b> email with some formatting.</p>
+    </body>
+</html>
+"""
+    send_email_in_HTML("swapnilsonker04@gmail.com", gmail_password, "swapnilsonkarcse2019@bbdu.ac.in", html_body, "swapnil_resume.pdf")
+    # Uncomment the following line if you want to send a single email

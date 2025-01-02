@@ -20,7 +20,7 @@ def generate_vectors_from_resume(resume_pdf):
     split = data_split.split_documents(dataloader)
 
     embeddings = OllamaEmbeddings(
-        model = "llama3.2",
+        model = "mistral:latest",
     )
     
     store = Chroma.from_documents(documents=split, embedding=embeddings)
