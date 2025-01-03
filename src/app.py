@@ -216,15 +216,15 @@ def send_email_in_HTML(sender_email, sender_password,data_source,htmlbody, tempo
         except ValidationError as e:
             print(f"Validation Error: {e}")                
      
-if __name__ == "__main__":
-    # subject = "HTML EMAIL"
-    html_body = """
-<html>
-    <body>
-        <h1 style="color: blue;">Hello Recruiter,</h1>
-        <p>This is an <b>HTML</b> email with some formatting.</p>
-    </body>
-</html>
-"""
-    send_email_in_HTML("swapnilsonker04@gmail.com", gmail_password, "swapnilsonkarcse2019@bbdu.ac.in", html_body, "swapnil_resume.pdf")
-    # Uncomment the following line if you want to send a single email
+# if __name__ == "__main__":
+#     # subject = "HTML EMAIL"
+#     html_body = """
+# <html>
+#     <body>
+#         <h1 style="color: blue;">Hello Recruiter,</h1>
+#         <p>This is an <b>HTML</b> email with some formatting.</p>
+#     </body>
+# </html>
+# """
+#     send_email_in_HTML("swapnilsonker04@gmail.com", gmail_password, "swapnilsonkarcse2019@bbdu.ac.in", html_body, "swapnil_resume.pdf")
+#     # Uncomment the following line if you want to send a single email
