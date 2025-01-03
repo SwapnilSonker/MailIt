@@ -85,7 +85,7 @@ def send_email(your_email , to_email, password, body, subject, resume_pdf=None):
         msg["To"] = to_email
         msg["Subject"] = subject
         
-        if "<html>" in body and "</html>" in body:
+        if any(tag in body.lower() for tag in ["<html>", "<body>", "<div>", "<p>", "<h1>", "<h2>", "<h3>", "<ul>", "<ol>", "<li>"]):
             msg.attach(MIMEText(body, 'html'))
         else:    
             msg.attach(MIMEText(body, 'plain'))
@@ -122,7 +122,10 @@ def send_email(your_email , to_email, password, body, subject, resume_pdf=None):
 def send_email_from_csv(sender_email, sender_password,csv_file, resume_pdf):
     try:
         data = pd.read_csv(csv_file)
-        skills = generate_embeddings(resume_pdf, "summarise the skill section")
+        skills = generate_embeddings(
+            resume_pdf, 
+            "take out the most important details and impressive details from the file and make it detailed and professional"
+            )
     except FileNotFoundError:
         print(f"Error: The file '{csv_file}' was not found.")
         return

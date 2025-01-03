@@ -2,5 +2,6 @@
 .env
 main.py
 
-src/swapnil_resume.pdf
+swapnil_resume.pdf
 src/__pycache__
+jobs_data.csv
