@@ -3,7 +3,8 @@ from dotenv import load_dotenv
 from langchain_community.document_loaders import PyPDFLoader
 import os
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_community.embeddings import OllamaEmbeddings
+# from langchain_community.embeddings import OllamaEmbeddings
+from langchain.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import Chroma
 
 load_dotenv() #loading the env variable 
@@ -19,8 +20,8 @@ def generate_vectors_from_resume(resume_pdf):
     data_split = RecursiveCharacterTextSplitter(chunk_size = 1000, chunk_overlap=200)
     split = data_split.split_documents(dataloader)
 
-    embeddings = OllamaEmbeddings(
-        model = "llama3.2",
+    embeddings = HuggingFaceEmbeddings(
+        model_name = "sentence-transformers/all-MiniLM-L6-v2",
     )
     
     store = Chroma.from_documents(documents=split, embedding=embeddings)
