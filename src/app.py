@@ -156,9 +156,6 @@ def send_email_from_csv(sender_email, sender_password,csv_file, resume_pdf):
             
             if not pd.isna(row['Email']) or row['Email'] != "N/A" or not pd.isna(row['Company Name']):
                 
-                # print("job_title" , type(job_title))
-                # print("sender_email" , type(Email.your_email))
-                # print("receiver email", type(Email.to_email))
                 
                 subject =  generate_subject_and_body(job_title, "subject", skills)
                 # print("subject ->", type(subject))
@@ -219,15 +216,4 @@ def send_email_in_HTML(sender_email, sender_password,data_source,htmlbody, tempo
         except ValidationError as e:
             print(f"Validation Error: {e}")                
      
-# if __name__ == "__main__":
-#     # subject = "HTML EMAIL"
-#     html_body = """
-# <html>
-#     <body>
-#         <h1 style="color: blue;">Hello Recruiter,</h1>
-#         <p>This is an <b>HTML</b> email with some formatting.</p>
-#     </body>
-# </html>
-# """
-#     send_email_in_HTML("swapnilsonker04@gmail.com", gmail_password, "swapnilsonkarcse2019@bbdu.ac.in", html_body, "swapnil_resume.pdf")
-#     # Uncomment the following line if you want to send a single email
+

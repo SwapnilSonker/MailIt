@@ -21,3 +21,4 @@ chromadb
 
 uvicorn 
 python-multipart
+sentence-transformers
