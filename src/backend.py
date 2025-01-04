@@ -50,75 +50,80 @@ async def send_emails_from_csv_api(
 async def send_html_inemail(
     sender_email: str = Form(...),
     sender_password: str = Form(...),
-    data_source: str = Form(...),
-    # email:Optional[str] = Form(None),
+    data_source: Optional[str] = Form(None),  # Used for single email
+    csv: Optional[UploadFile] = File(None),  # Used for CSV file
     html_body: str = Form(...),
-    temporary_pdf: Optional[UploadFile] = File(None),
+    temporary_pdf: Optional[UploadFile] = File(None),  # Optional PDF attachment
 ):
+    temp_pdf_path = None  # Initialize PDF path
+    if data_source and csv:
+        raise HTTPException(
+            status_code=400,
+            detail="Both 'data_source' and 'csv' cannot be provided at the same time. Provide only one.",
+        )
+        
+    # else:    
+    # Handle PDF attachment
     if temporary_pdf:
         with tempfile.TemporaryDirectory() as temp_dir:
             temp_pdf_path = os.path.join(temp_dir, temporary_pdf.filename)
-            
             with open(temp_pdf_path, "wb") as temp_pdf_file:
                 shutil.copyfileobj(temporary_pdf.file, temp_pdf_file)
-            
-            # Call the email-sending function inside the `with` block
-            if data_source.endswith(".csv"):
-                try:
-                    send_email_in_HTML(sender_email, sender_password, data_source, html_body, temp_pdf_path)
-                except Exception as e:
-                    raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email with pdf file")
+
+    # Check if CSV file is provided
+            if csv:
+                if csv.filename.endswith(".csv"):
+                    with tempfile.TemporaryDirectory() as temp_dir:
+                        temp_csv_path = os.path.join(temp_dir, csv.filename)
+                        with open(temp_csv_path, "wb") as temp_csv_file:
+                            shutil.copyfileobj(csv.file, temp_csv_file)
+                        
+                        try:
+                            print("Processing CSV file...")
+                            # Call your email-sending function with the parsed CSV
+                            send_email_in_HTML(sender_email, sender_password, temp_csv_path, html_body, temp_pdf_path)
+                            print("Processed CSV file.")
+                        except Exception as e:
+                            raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email with CSV and PDF")
+                else:
+                    raise HTTPException(status_code=400, detail="Uploaded file is not a valid CSV.")
             else:
-                try:
-                    send_email_in_HTML(sender_email, sender_password, data_source, html_body, temp_pdf_path)
-                except Exception as e:
-                    raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}")
+                # Handle single email address in `data_source`
+                if data_source:
+                    try:
+                        print("Processing single email...")
+                        send_email_in_HTML(sender_email, sender_password, data_source, html_body, temp_pdf_path)
+                        print("Processed single email.")
+                    except Exception as e:
+                        raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email with single email")
+                else:
+                    raise HTTPException(status_code=400, detail="No valid email or CSV file provided.")
+
     else:
-        # Handle cases without a temporary PDF
-        if data_source.endswith(".csv"):
-            try:
-                send_email_in_HTML(sender_email, sender_password, data_source, html_body, None)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email without pdf file")
+        if csv:
+                if csv.filename.endswith(".csv"):                        
+                        try:
+                            print("Processing CSV file...")
+                            # Call your email-sending function with the parsed CSV
+                            send_email_in_HTML(sender_email, sender_password, temp_csv_path, html_body, temp_pdf_path)
+                            print("Processed CSV file.")
+                        except Exception as e:
+                            raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email with CSV and no PDF")
+                else:
+                    raise HTTPException(status_code=400, detail="Uploaded file is not a valid CSV.")
         else:
-            try:
-                send_email_in_HTML(sender_email, sender_password, data_source, html_body, None)
-            except Exception as e:
-                raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}")
-
-    return JSONResponse(content={"message": "HTML in email sent successfully!"})
-
-# async def send_html_inemail(
-#     sender_email: str = Form(...),
-#     sender_password: str = Form(...),
-#     data_source: str = Form(...),
-#     html_body: str = Form(...),
-#     temporary_pdf: Optional[UploadFile] = File(None),
-# ):
-#     temp_pdf_path = None
+            # Handle single email address in `data_source`
+            if data_source:
+                try:
+                    print("Processing single email...")
+                    send_email_in_HTML(sender_email, sender_password, data_source, html_body, temp_pdf_path)
+                    print("Processed single email.")
+                except Exception as e:
+                    raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email with single email, no CSV , no PDF")
+            else:
+                raise HTTPException(status_code=400, detail="No valid email or CSV file provided.")
     
-#     if temporary_pdf:
-#         with tempfile.TemporaryDirectory() as temp_dir:
-#             temp_pdf_path = os.path.join(temp_dir, temporary_pdf.filename)
-            
-#             with open(temp_pdf_path, "wb") as temp_pdf_file:
-#                 shutil.copyfileobj(temporary_pdf.file, temp_pdf_file)
-            
-#     if data_source.endswith(".csv"):
-#         try:
-#             send_email_in_HTML(sender_email, sender_password, data_source, html_body, temp_pdf_path)  
-#         except Exception as e:
-#             raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}, error in html email")  
-        
-#     else:
-#         # Assume data_source is a single email address
-#         try:
-#             send_email_in_HTML(sender_email, sender_password, data_source, html_body, temp_pdf_path)
-#         except Exception as e:
-#             raise HTTPException(status_code=500, detail=f"Error occurred: {str(e)}")   
-        
-#     return JSONResponse(content={"message": "HTML in email sent successfully!"})      
-
+    return JSONResponse(content={"message": "HTML email sent successfully!"})
 
 
 if __name__ == "__main__":
