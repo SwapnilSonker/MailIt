@@ -9,7 +9,7 @@ pydantic
 
 # for api creation
 fastapi
-
+gunicorn
 huggingface_hub
 langchain
 langchain_community
