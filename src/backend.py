@@ -7,9 +7,17 @@ import uvicorn
 import os
 import tempfile
 from src.app import send_email_in_HTML, send_email_from_csv
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Replace "*" with specific domains in production
+    allow_credentials=True,
+    allow_methods=["*"],  # Specify allowed HTTP methods, e.g., ["GET", "POST"]
+    allow_headers=["*"],  # Specify allowed headers
+)
 
 @app.post("/send-email-via-csv/")
 async def send_emails_from_csv_api(

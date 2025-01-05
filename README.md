@@ -1,69 +1,68 @@
-# EmailScrawl API
+# FastAPI Email API
 
-## Overview
+This project provides two endpoints for sending emails using FastAPI. You can send bulk emails with attachments via a CSV file or send custom HTML emails with optional attachments. The endpoints are designed to handle both single and bulk email scenarios.
 
-EmailScrawl provides two main APIs to handle email sending functionalities. Below is a brief description of each API and their capabilities.
+---
 
-## API Endpoints
+## Features
+- **Send Bulk Emails**: Upload a CSV file to send emails to multiple recipients.
+- **Send HTML Emails**: Send customized HTML emails with optional attachments.
+- **Secure**: Uses form data for email credentials and file uploads.
+- **Extensible**: Can be expanded to include additional email use cases.
+- **CORS Support**: Configured to handle cross-origin requests.
 
-### 1. Authentication API
+---
 
-**Endpoint:** `/send-email-via-csv/`
+## Endpoints
 
-**Description:** This API allows users to authenticate using the following parameters:
-- `password`
-- `email`
-- `csv`
-- `file`
+### 1. **Send Emails via CSV**
 
-### 2. Email Sending API
+**Endpoint**: `/send-email-via-csv/`  
+**Method**: `POST`  
+**Description**: Upload a CSV file containing recipient email addresses to send bulk emails. Attach a resume PDF to include as an attachment.
 
-**Endpoint:** `/send-html-via-email/`
+#### Parameters
+- `sender_email` (Form): The sender's email address.
+- `sender_password` (Form): The sender's email password.
+- `csv_file` (File): The CSV file containing recipient email addresses.
+- `resume_pdf` (File): A PDF file to attach to the email.
 
-**Description:** This API allows users to send emails with the following features:
-- Supports both HTML body and normal email body
-- Emails can be sent to either a predefined environment list or a specific email address
+#### Example Request
+```bash
+curl -X POST "http://your-api-domain/send-email-via-csv/" \
+-H "accept: application/json" \
+-F "sender_email=your_email@example.com" \
+-F "sender_password=your_password" \
+-F "csv_file=@recipients.csv" \
+-F "resume_pdf=@resume.pdf"
 
-## Usage
 
-### Authentication API
+## Endpoint: **Send HTML Email**
 
-To authenticate, send a POST request to `/api/authenticate` with the required parameters.
+**Endpoint**: `/send-html-via-email/`  
+**Method**: `POST`  
+**Description**: Sends a custom HTML email to one or more recipients. The API can accept a single email address or a CSV file containing a list of recipients. Optionally, a PDF attachment can be included.
 
-### Email Sending API
+### Input Parameters (FormData)
 
-To send an email, send a POST request to `/api/send-email` with the email content and recipient details.
+| Parameter          | Type           | Description                                                        |
+|--------------------|----------------|--------------------------------------------------------------------|
+| `sender_email`     | `string` (Form) | The sender's email address.                                        |
+| `sender_password`  | `string` (Form) | The sender's email password.                                       |
+| `data_source`      | `string` (Form, Optional) | A single recipient's email address. If provided, this is the recipient. |
+| `csv`              | `file` (File, Optional) | A CSV file containing a list of recipient emails.                  |
+| `html_body`        | `string` (Form) | The HTML content to be included in the email body.                 |
+| `temporary_pdf`    | `file` (File, Optional) | A PDF file to attach to the email (optional).                      |
 
-## Example
+### Example Request
 
-### Authentication Request
+#### 1. **Using curl to Send HTML Email:**
 
-```http
-POST /send-email-via-csv/
-Content-Type: application/json
-
-{
-    "email": "user@example.com",
-    "password": "yourpassword",
-    "csv": "path/to/csvfile.csv",
-    "file": "path/to/file"
-}
-```
-
-### Email Sending Request
-
-```http
-POST /send-html-via-email/
-Content-Type: application/json
-
-{
-    "to": "recipient@example.com",
-    "subject": "Your Subject",
-    "body": "This is the email body",
-    "htmlBody": "<h1>This is the HTML email body</h1>"
-}
-```
-
-## Conclusion
-
-EmailScrawl's APIs provide a robust solution for email authentication and sending, supporting various formats and recipient configurations.
+To send an HTML email with an optional PDF attachment:
+```bash
+curl -X POST "http://your-api-domain/send-html-via-email/" \
+-H "accept: application/json" \
+-F "sender_email=your_email@example.com" \
+-F "sender_password=your_password" \
+-F "html_body=<h1>Hello, this is an HTML email!</h1>" \
+-F "temporary_pdf=@attachment.pdf"
