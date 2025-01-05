@@ -6,7 +6,7 @@ import shutil
 import uvicorn
 import os
 import tempfile
-from app import send_email_in_HTML, send_email_from_csv
+from src.app import send_email_in_HTML, send_email_from_csv
 
 app = FastAPI()
 
