@@ -13,7 +13,7 @@ from langchain_community.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferMemory
 from typing import Literal
 from pydantic_core import ValidationError
-from groq_embeddings import generate_embeddings
+from src.groq_embeddings import generate_embeddings
 
 
 

@@ -22,4 +22,3 @@ chromadb
 uvicorn 
 python-multipart
 sentence-transformers
-groq_embeddings
