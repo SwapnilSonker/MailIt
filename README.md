@@ -35,7 +35,7 @@ curl -X POST "http://your-api-domain/send-email-via-csv/" \
 -F "sender_password=your_password" \
 -F "csv_file=@recipients.csv" \
 -F "resume_pdf=@resume.pdf"
-
+```
 
 ## Endpoint: **Send HTML Email**
 
@@ -66,3 +66,4 @@ curl -X POST "http://your-api-domain/send-html-via-email/" \
 -F "sender_password=your_password" \
 -F "html_body=<h1>Hello, this is an HTML email!</h1>" \
 -F "temporary_pdf=@attachment.pdf"
+```
