@@ -22,17 +22,17 @@ jobs:
           run: |
             echo "Render API Key is set: ${{ secrets.RENDER_API_KEY }}" # this will not print the key, just confirm it exists
             echo "Render Service ID is set: ${{ secrets.RENDER_SERVICE_ID }}"
-        # - name: Install Dependencies
-        #   run: |
-        #     pip install --upgrade pip
-        #     pip install -r requirements.txt   
+        - name: Install Dependencies
+          run: |
+            pip install --upgrade pip
+            pip install -r requirements.txt   
             
-        # - name: Deploy to Render
-        #   env:
-        #     RENDER_API_KEY: {{ secrets.RENDER_API_KEY }}
-        #     RENDER_SERVICE_ID: {{ secrets.RENDER_SERVICE_ID }}
-        #   run: |
-        #     curl --request POST \
-        #          --url 'https://api.render.com/v1/services/{{ secrets.RENDER_SERVICE_ID }}/deploys' \
-        #          --header 'Authorization: Bearer {{ secrets.RENDER_API_KEY }}' 
+        - name: Deploy to Render
+          env:
+            RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+            RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          run: |
+            curl --request POST \
+                 --url 'https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys' \
+                 --header 'Authorization: Bearer ${{ secrets.RENDER_API_KEY }}' 
               
