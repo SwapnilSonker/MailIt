@@ -21,7 +21,7 @@ jobs:
         - name: Test if secrets are accessible
           run: |
             echo "Render API Key is set: ${{ secrets.RENDER_API_KEY }}" # this will not print the key, just confirm it exists
-            echo "Render Service ID is set: ${{ secrets.RENDER_SERVICE_ID }}
+            echo "Render Service ID is set: ${{ secrets.RENDER_SERVICE_ID }}"
         # - name: Install Dependencies
         #   run: |
         #     pip install --upgrade pip
