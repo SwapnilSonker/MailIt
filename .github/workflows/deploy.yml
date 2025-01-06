@@ -25,7 +25,7 @@ jobs:
             
         - name: Deploy to Render
           run: |
-            curl -X POST https://api.render.com/v1/services/${{secrets. RENDER_SERVICE_ID}}/deploy \
+            curl -X POST https://api.render.com/v1/services/${{secrets. RENDER_SERVICE_ID}}/deploys \
             -H "Authorization: Bearer ${{secrets.RENDER_API_KEY}}" \
             -F "file=@path_to_your_deployment_file" \  # Path to the deployment file
             -F "branch=master"  # Specifying the branch to deploy  
